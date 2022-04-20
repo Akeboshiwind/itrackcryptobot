@@ -13,11 +13,23 @@ def hourly(context: CallbackContext) -> None:
     id = chat["id"]
     vs_currency = chat["vs_currency"]
     amount = chat["amount"]
+    previous_price = chat.get("previous_price", None)
 
     # Get the current price
     price = cg.get_price(ids=id, vs_currencies=vs_currency)
     price = price[id][vs_currency]
 
-    # Send the message
+    # Build message
     message = f"Current price: £{price * amount}"
+    if previous_price:
+        if previous_price < price:
+            message += " 🔼"
+        elif previous_price > price:
+            message += " 🔽"
+
+    # Update the previous_price
+    chat["previous_price"] = price
+    context.bot_data["chats"][chat_id] = chat
+
+    # Send message
     context.bot.send_message(chat_id=chat_id, text=message)
