@@ -33,11 +33,13 @@ munits.registry[datetime] = converter
 
 
 def daily(context: CallbackContext) -> None:
-    # Extract the parameters
     chat_id = context.job.context["chat_id"]
-    id = context.job.context["id"]
-    vs_currency = context.job.context["vs_currency"]
-    amount = context.job.context["amount"]
+    chat = context.bot_data["chats"][chat_id]
+
+    # Extract the parameters
+    id = chat["id"]
+    vs_currency = chat["vs_currency"]
+    amount = chat["amount"]
 
     # Get history from coingecko
     history = cg.get_coin_market_chart_by_id(

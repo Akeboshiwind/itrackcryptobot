@@ -6,11 +6,13 @@ cg = CoinGeckoAPI()
 
 
 def hourly(context: CallbackContext) -> None:
-    # Extract the parameters
     chat_id = context.job.context["chat_id"]
-    id = context.job.context["id"]
-    vs_currency = context.job.context["vs_currency"]
-    amount = context.job.context["amount"]
+    chat = context.bot_data["chats"][chat_id]
+
+    # Extract the parameters
+    id = chat["id"]
+    vs_currency = chat["vs_currency"]
+    amount = chat["amount"]
 
     # Get the current price
     price = cg.get_price(ids=id, vs_currencies=vs_currency)
