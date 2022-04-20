@@ -1,0 +1,10 @@
+# Python stuff
+*.pyc
+*.pyo
+*.pyd
+.cache
+.ropeproject
+
+# Other
+.git
+stats
