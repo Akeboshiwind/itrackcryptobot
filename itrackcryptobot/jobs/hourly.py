@@ -20,7 +20,7 @@ def hourly(context: CallbackContext) -> None:
     price = price[id][vs_currency]
 
     # Build message
-    message = f"Current price: £{price * amount}"
+    message = f"Current price: £{price * amount:.2f}"
     if previous_price:
         if previous_price < price:
             message += " 🔼"
