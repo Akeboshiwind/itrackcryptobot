@@ -12,6 +12,17 @@
         :body
         (json/parse-string true))))
 
+(def file? (partial instance? java.io.File))
+
+(defn request->multipart [request]
+  (->> request
+       (map (fn [[k v]]
+              {:name (name k)
+               :content
+               (cond
+                 (or (string? v) (file? v)) v
+                 :else (json/encode v))}))))
+
 (defn invoke
   "Given a map of:
 
@@ -22,17 +33,35 @@
   [client {:keys [op request]}]
   (post client (name op)
         (when request
-          {:headers {"Content-Type" "application/json"}
-           :body (json/encode request)})))
+          ; Prefer application/json, not sure why
+          ; ChatGPT says it's more efficient :shrug:
+          (if-not (some file? (vals request))
+            {:headers {"Content-Type" "application/json"}
+             :body (json/encode request)}
+            {:headers {"Content-Type" "multipart/form-data"}
+             :multipart (request->multipart request)}))))
 
+#_{:clj-kondo/ignore [:unresolved-namespace]}
 (comment
-  (let [bot {:token "1234"}
+  (let [bot main/bot
         chat-id 1234]
+    #_(invoke bot
+              {:op :sendMessage
+               :request {:chat_id chat-id
+                         :text "Hello, world!"
+                         :reply_text {:message_id 3398}}})
     (invoke bot
-            {:op :sendMessage
+            {:op :sendPhoto
              :request {:chat_id chat-id
-                       :text "Hello, world!"}})))
+                       :photo (io/file "/tmp/out.png")
+                       :reply_parameters {:message_id 3398}}})
 
+    (request->multipart
+     {:chat_id chat-id
+      :photo (io/file "/tmp/out.png")
+      :reply_parameters {:message_id 3398}})))
+
+; TODO: Move to updates.clj?
 (defn get-me [client]
   (invoke client {:op :getMe}))
 
