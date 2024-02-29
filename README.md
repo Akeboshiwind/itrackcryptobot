@@ -21,3 +21,9 @@ $ bb -m main
     - Configures the bot to post for the given coin id in the chat
 - Only one amount tracked per chat
 - Keeps track of schedules on restart
+
+## Release
+
+1. Bump version in `bb.edn`
+2. Tag with `v<version>`
+3. `git push --tags`
