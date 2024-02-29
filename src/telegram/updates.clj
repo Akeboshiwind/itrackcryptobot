@@ -50,12 +50,19 @@
          stop-handle
          (future
            (loop [offset 0]
-             (let [opts (merge {:timeout 5} opts {:offset offset})
-                   updates (-> (tg/get-updates client opts) :result)]
-               (if (seq updates)
-                 (do (doseq [update updates]
-                       (println update)
-                       (handle-update client handlers update))
-                     (recur (->> updates (map :update_id) (apply max) inc)))
-                 (recur offset)))))]
+             (recur
+              (try
+                (let [opts (merge {:timeout 5} opts {:offset offset})
+                      updates (-> (tg/get-updates client opts) :result)]
+                  (if (seq updates)
+                    (do (doseq [update updates]
+                          (println update)
+                          (handle-update client handlers update))
+                        (->> updates (map :update_id) (apply max) inc))
+                    offset))
+                (catch Exception e
+                  (println "Caught exception" e)
+                  (println "Waiting 5s")
+                  (Thread/sleep 5000)
+                  offset)))))]
      #(future-cancel stop-handle))))
