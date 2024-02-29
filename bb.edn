@@ -1,5 +1,6 @@
 {:version "0.3.0"
  :paths ["src"]
+ :deps {overtone/at-at {:mvn/version "1.2.0"}}
  :tasks
  {nrepl
   {:requires [[babashka.fs :as fs]
