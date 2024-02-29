@@ -1,8 +1,4 @@
-.ropeproject
-stats
-__pycache__
-*.pyc
-
 .lsp
 .clj-kondo
 .nrepl-port
+src/fiddle.clj
