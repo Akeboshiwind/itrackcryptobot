@@ -9,16 +9,15 @@ A simple bot that:
 
 ```bash
 $ export TELEGRAM_BOT_TOKEN="<your token here>"
-$ export PERSISTENCE_FILE="./stats"
-$ export TZ="<your timezone (pytz)>"
-$ poetry install
-$ poetry run python main.py
+$ export DATA_PATH="./stats"
+$ export TZ="<your timezone>"
+$ bb -m main
 ```
 
 ## Features
 
 - Uses the CoinGecko API
-- `/setup <coin id> <vs currency> [<amount>]` command
+- `/setup {amount} {coin-id}[->{vs-currency}]+` command
     - Configures the bot to post for the given coin id in the chat
 - Only one amount tracked per chat
 - Keeps track of schedules on restart
