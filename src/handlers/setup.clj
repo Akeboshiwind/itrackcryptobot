@@ -29,7 +29,7 @@
        :request {:chat_id chat-id
                  :text "Expected /setup {amount} {coin-id}[->{vs-currency}]+"
                  :reply_parameters {:message_id message-id}}}
-      (do (swap! c/chat->data assoc chat-id args)
+      (do (c/swap! assoc chat-id args)
           {:op :sendMessage
            :request {:chat_id chat-id
                      :text (str "Setup " (str/join "->" (:ids args)))
