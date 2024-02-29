@@ -4,7 +4,11 @@
 
             [handlers.version :as version]
             [handlers.stats :as stats]
-            [handlers.setup :as setup]))
+            [handlers.setup :as setup]
+
+            [schedule :as s]
+
+            [clojure.tools.logging :as log]))
 
 ;; TODO: Get from environment
 (def bot {::tg/token "1234:ABCDEFG"})
@@ -14,6 +18,16 @@
    "/stats" stats/handler
    "/setup" setup/handler})
 
-(defn -main [& _args]
+(defn start []
   (let [stop (u/handle-updates bot handlers)]
-    stop))
+    (s/start bot)
+    (log/info "Started bot!")
+    #(do (stop)
+         (s/stop))))
+
+(comment
+  (start))
+
+(defn -main [& _args]
+  (start)
+  @(promise))
