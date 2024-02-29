@@ -1,5 +1,6 @@
 (ns telegram.updates
-  (:require [telegram.core :as tg]))
+  (:require [telegram.core :as tg]
+            [clojure.tools.logging :as log]))
 
 (defn process-handlers [handlers]
   (->> handlers
@@ -56,13 +57,12 @@
                       updates (-> (tg/get-updates client opts) :result)]
                   (if (seq updates)
                     (do (doseq [update updates]
-                          (println update)
+                          (log/info "Handling update" update)
                           (handle-update client handlers update))
                         (->> updates (map :update_id) (apply max) inc))
                     offset))
                 (catch Exception e
-                  (println "Caught exception" e)
-                  (println "Waiting 5s")
+                  (log/error e "Failed to handle update, waiting 5s")
                   (Thread/sleep 5000)
                   offset)))))]
      #(future-cancel stop-handle))))
