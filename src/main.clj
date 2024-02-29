@@ -11,7 +11,8 @@
             [clojure.tools.logging :as log]))
 
 ;; TODO: Get from environment
-(def bot {::tg/token "1234:ABCDEFG"})
+(def bot {::tg/token (or (System/getenv "TELEGRAM_BOT_TOKEN")
+                         (throw (Exception. "TELEGRAM_BOT_TOKEN is not set")))})
 
 (def handlers
   {"/version" version/handler
