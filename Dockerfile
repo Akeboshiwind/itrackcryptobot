@@ -18,6 +18,9 @@ FROM eclipse-temurin AS build
 
 COPY --from=babashka /usr/local/bin/bb /usr/local/bin/bb
 
+# Install git to download git deps
+RUN apt-get update && apt-get install -y git
+
 # Install deps
 COPY bb.edn bb.edn
 RUN bb prepare
