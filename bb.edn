@@ -1,6 +1,7 @@
 {:version "0.3.0"
  :paths ["src"]
- :deps {overtone/at-at {:mvn/version "1.2.0"}}
+ :deps {overtone/at-at {:mvn/version "1.2.0"}
+        io.github.akeboshiwind/tg-clj {:git/tag "v0.1.0" :git/sha "86370b1"}}
  :tasks
  {nrepl
   {:requires [[babashka.fs :as fs]

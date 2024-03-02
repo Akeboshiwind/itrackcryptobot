@@ -1,5 +1,5 @@
 (ns main
-  (:require [telegram.core :as tg]
+  (:require [tg-clj.core :as tg]
             [telegram.updates :as u]
 
             [handlers.version :as version]
@@ -10,9 +10,10 @@
 
             [clojure.tools.logging :as log]))
 
-;; TODO: Get from environment
-(def bot {::tg/token (or (System/getenv "TELEGRAM_BOT_TOKEN")
-                         (throw (Exception. "TELEGRAM_BOT_TOKEN is not set")))})
+(def bot
+  (tg/make-client
+   {:token (or (System/getenv "TELEGRAM_BOT_TOKEN")
+               (throw (Exception. "TELEGRAM_BOT_TOKEN is not set")))}))
 
 (def handlers
   {"/version" version/handler

@@ -1,12 +1,49 @@
 (ns telegram.updates
-  (:require [telegram.core :as tg]
+  (:require [tg-clj.core :as tg]
             [clojure.tools.logging :as log]))
+
+(defn get-me [client]
+  (tg/invoke client {:op :getMe}))
+
+(defonce me (atom nil))
+
+(defn get-updates [client opts]
+  (when-not @me
+    (reset! me (:result (get-me client))))
+  (-> (tg/invoke client
+                 {:op :getUpdates
+                  :request opts})
+      (update :result #(map (fn [u] (assoc u ::me @me)) %))))
+
+(defn valid-command? [cmd]
+  (re-matches #"/[a-z0-9_]+" cmd))
+
+(defn command? [cmd u]
+  (assert (valid-command? cmd) (str "Invalid command: " cmd))
+  (when-let [text (get-in u [:message :text])]
+    (let [username (get-in u [::me :username])
+          pattern (str "(^| )" cmd "($|@" username "| )")]
+      (re-find (re-pattern pattern) text))))
+
+(comment
+  ;; TODO: Turn into tests
+  (let [cmd? (partial command? "/version")
+        username "mybot"
+        ->msg (fn [text] {::me {:username username}
+                          :message {:text text}})]
+    (and (not (cmd? (->msg "/ver")))
+         (not (cmd? (->msg "/versionxxx")))
+         (not (cmd? (->msg "/version@notmybot")))
+         (not (cmd? (->msg "something/version")))
+         (cmd? (->msg "/version"))
+         (cmd? (->msg "/version@mybot"))
+         (cmd? (->msg "some /version text")))))
 
 (defn process-handlers [handlers]
   (->> handlers
        (map (fn [[pred handler]]
               [(if (string? pred)
-                 (partial tg/command? pred)
+                 (partial command? pred)
                  pred)
                handler]))))
 
@@ -28,17 +65,17 @@
   handlers  - a vector of pairs of [`predicate` `handler`], the first predicate which matches will have it's update called.
 
   predicate - a string or predicate which is passed an update.
-  handler   - a function that takes a client and an update, *may* return a request for telegram.core/invoke to call.
+  handler   - a function that takes a client and an update, *may* return a request for tg-clj.core/invoke to call.
   
   Example:
   (def handlers
-    [[#(tg/command? \"/hello\" %)
+    [[#(command? \"/hello\" %)
       (fn [_client u]
         {:op :sendMessage
          :request {:chat_id (get-in u [:message :chat :id])
                    :text \"Hello, world!\"}})]
      ; As a special case a valid command string can be provided
-     ; It will be transformed into #(tg/command? <string> update)
+     ; It will be transformed into #(command? <string> update)
      [\"/hi\"
       (fn [_client u]
         {:op :sendMessage
@@ -54,7 +91,7 @@
              (recur
               (try
                 (let [opts (merge {:timeout 5} opts {:offset offset})
-                      updates (-> (tg/get-updates client opts) :result)]
+                      updates (-> (get-updates client opts) :result)]
                   (if (seq updates)
                     (do (doseq [update updates]
                           (log/info "Handling update" update)

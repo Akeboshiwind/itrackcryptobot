@@ -3,7 +3,7 @@
             [cheshire.core :as json]
             [clojure.string :as str]
             [babashka.process :refer [shell]]
-            [telegram.core :as tg]
+            [tg-clj.core :as tg]
             [clojure.java.io :as io]
             [config :as config]))
 
