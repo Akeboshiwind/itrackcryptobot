@@ -1,26 +1,38 @@
 # I Track Crypto Bot
 
-A simple bot that:
-- Every hour posts the current value of an amount of crypto
-- Every morning posts a graph of the value over the past 24 hours
+A simple bot that posts prices hourly using the CoinGecko API.
 
+Only tracks one conversion per chat.
 
 ## Running it
 
 ```bash
-$ export TELEGRAM_BOT_TOKEN="<your token here>"
-$ export DATA_PATH="./stats"
-$ export TZ="<your timezone>"
-$ bb -m main
+docker run --pull-always ghcr.io/akeboshiwind/itrackcryptobot:latest \
+    -e "TELEGRAM_BOT_TOKEN=<your token here>" \
+    -e "DATA_PATH=/data/store.edn" \
+    -e "TZ=<your timezone>"
 ```
 
-## Features
+## Usage
 
-- Uses the CoinGecko API
-- `/setup {amount} {coin-id}[->{vs-currency}]+` command
-    - Configures the bot to post for the given coin id in the chat
-- Only one amount tracked per chat
-- Keeps track of schedules on restart
+Initially you'll need to run `/setup {amount} {coin-id}[->{vs-currency}]+`.
+It should look something like this: `/setup 1 btc->usd->gbp` 
+
+After that every hour an amount in the final currency will be posted to the chat,
+and every day a chart will be posted with the price over the day.
+
+### Commands
+
+All commands are admin-only, once a global admin has been setup.
+
+| Command | Description | Example |
+| --- | --- | --- |
+| `/setup {amount} {coin-id}[->{vs-currency}]+` | Registers the conversion for the chat | `/setup 100 siacoin->usd->gbp` |
+| `/version` | Prints the bot's version | `/version` |
+| `/stats` | Prints the store's contents | `/stats` |
+| `/admin_list` | Lists the current global admins | `/admin_list` |
+| `/admin_add <user>[ <user>]+` | Adds new admins | `/admin_add @me Johnny` |
+| `/admin_remove <user>[ <user>]+` | Removes admins | `/admin_remove @you Johnny` |
 
 ## Release
 
