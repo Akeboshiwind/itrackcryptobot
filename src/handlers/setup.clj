@@ -1,5 +1,5 @@
 (ns handlers.setup
-  (:require [config :as c]
+  (:require [tg-clj-server.utils :as tg-u]
             [util :as u]
             [clojure.string :as str]))
 
@@ -19,18 +19,14 @@
        (:ids args)
        (>= (count (:ids args)) 2)))
 
-(defn handler [_bot u]
+(defn handler [{:keys [store] u :update}]
   (let [chat-id (get-in u [:message :chat :id])
-        message-id (get-in u [:message :message_id])
-        text (get-in u [:message :text])
-        args (extract-args text)]
+        args (-> u (get-in [:message :text]) extract-args)]
     (if-not (and args (valid-args? args))
-      {:op :sendMessage
-       :request {:chat_id chat-id
-                 :text "Expected /setup {amount} {coin-id}[->{vs-currency}]+"
-                 :reply_parameters {:message_id message-id}}}
-      (do (c/swap! assoc chat-id args)
-          {:op :sendMessage
-           :request {:chat_id chat-id
-                     :text (str "Setup " (str/join "->" (:ids args)))
-                     :reply_parameters {:message_id message-id}}}))))
+      (-> {:op :sendMessage
+           :request {:text "Expected /setup {amount} {coin-id}[->{vs-currency}]+"}}
+          (tg-u/reply-to u))
+      (-> {:op :sendMessage
+           :request {:text (str "Setup " (str/join "->" (:ids args)))}}
+          (tg-u/reply-to u)
+          (assoc :set-store (assoc-in store [:chat->data chat-id] args))))))

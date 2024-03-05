@@ -31,7 +31,7 @@
 
 (defn post-prices [client]
   (doseq [[chat-id {:keys [amount ids]}]
-          @config/chat->data]
+          (:chat->data @config/store)]
     (let [price (convert-amount amount ids)
           last-price (get @chat-id->last-price chat-id)
           text (str "Current price: " (format "%.2f" price)
@@ -51,7 +51,7 @@
 
 (defn post-charts [client]
   (doseq [[chat-id {:keys [amount ids]}]
-          @config/chat->data]
+          (:chat->data @config/store)]
     (let [coin-id (first ids)
           vs-currency (second ids)
           ->final-currency (rest ids)
