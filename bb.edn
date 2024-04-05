@@ -1,4 +1,4 @@
-{:version "0.4.0"
+{:version "0.4.1"
  :paths ["src"]
  :deps {overtone/at-at {:mvn/version "1.2.0"}
         io.github.akeboshiwind/tg-clj {:git/tag "v0.2.2" :git/sha "f742d7e"}
