@@ -26,11 +26,11 @@
               :admin-only true}
     "/setup" {:handler setup/handler
               :admin-only true}}
-   admin/global-admin-routes))
+   admin/routes))
 
 (def app
   (let [path (or (System/getenv "DATA_PATH") "/data/chat.edn")]
-    (defaults/make-app routes {:middleware [admin/global-admin-middleware]
+    (defaults/make-app routes {:middleware [admin/middleware]
                                :store/path path
                                :store/atom config/store})))
 
