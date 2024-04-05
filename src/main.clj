@@ -8,8 +8,8 @@
             [handlers.stats :as stats]
             [handlers.setup :as setup]
 
-            [schedule :as s]
-            [config :as config]
+            [schedule]
+            [config]
 
             [clojure.tools.logging :as log]))
 
@@ -36,10 +36,10 @@
 
 (defn start []
   (let [stop-handle (future (tg-poll/run-server bot app))]
-    (s/start bot)
+    (schedule/start bot)
     (log/info "Started bot!")
     #(do (future-cancel stop-handle)
-         (s/stop))))
+         (schedule/stop))))
 
 (comment
   (def stop (start))
